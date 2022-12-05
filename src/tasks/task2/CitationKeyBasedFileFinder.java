@@ -1,4 +1,4 @@
-package task2;
+package tasks.task2;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.Locale;
 
 public class CitationKeyBasedFileFinder {
     private final boolean exactKeyOnly;

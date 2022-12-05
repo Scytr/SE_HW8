@@ -1,4 +1,4 @@
-package task2;
+package tasks.task2;
 
 import java.util.Optional;
 public class BibEntry {

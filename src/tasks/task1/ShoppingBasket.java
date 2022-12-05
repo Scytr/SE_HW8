@@ -1,4 +1,4 @@
-package task1;
+package tasks.task1;
 
 public class ShoppingBasket {
     public static Items itemList = new Items();

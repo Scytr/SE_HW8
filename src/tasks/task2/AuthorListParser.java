@@ -1,39 +1,27 @@
-package task2;
+package tasks.task2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-
 
 
 public class AuthorListParser {
-
     // Avoid partition where these values are contained
     private final static Set<String> AVOID_TERMS_IN_LOWER_CASE = Set.of(
             "jr", "sr", "jnr", "snr", "von", "zu", "van", "der");
 
     private static final int TOKEN_GROUP_LENGTH = 4; // number of entries for a token
-
     // the following are offsets of an entry in a group of entries for one token
-    private static final int offsettoken = 0; // String -- token itself;
-
-    private static final int offsettokenabbr = 1; // String -- token abbreviation;
-
-    private static final int offsettikenname = 2;
-
-    private static final int offsettokenset = 3;
+    private static final int OFFSET_TOKEN = 0; // String -- token itself;
+    private static final int OFFSET_TOKEN_ABBR = 1; // String -- token abbreviation;
+    private static final int OFFSET_TOKEN_NAME = 2;
+    private static final int OFFSET_TOKEN_SET = 3;
 
     // Character -- token terminator (either " " or
     // "-") comma)
@@ -125,7 +113,7 @@ public class AuthorListParser {
             // Usually the getAsLastFirstNamesWithAnd method would separate them if pre- and lastname are separated with "and"
             // If not, we check if spaces separate pre- and lastname
             if (spaceInAllParts) {
-                listOfNames = listOfNames.replaceAll(",", " and");
+                listOfNames = listOfNames.replace(",", " and");
             } else {
                 // Looking for name affixes to avoid
                 // arrayNameList needs to reduce by the count off avoiding terms
@@ -203,7 +191,7 @@ public class AuthorListParser {
                     }
                     if (vonStart < 0) {
                         if (!tokenCase) {
-                            int previousTermToken = (tokens.size() - TOKEN_GROUP_LENGTH - TOKEN_GROUP_LENGTH) + offsettikenname;
+                            int previousTermToken = (tokens.size() - TOKEN_GROUP_LENGTH - TOKEN_GROUP_LENGTH) + OFFSET_TOKEN_NAME;
                             if ((previousTermToken >= 0) && tokens.get(previousTermToken).equals('-')) {
                                 // We are in a first name which contained a hyphen
                                 break;
@@ -246,7 +234,7 @@ public class AuthorListParser {
             if (vonStart < 0) { // no 'von part'
                 lastPartEnd = tokens.size();
                 lastPartStart = tokens.size() - TOKEN_GROUP_LENGTH;
-                int index = (tokens.size() - (2 * TOKEN_GROUP_LENGTH)) + offsettikenname;
+                int index = (tokens.size() - (2 * TOKEN_GROUP_LENGTH)) + OFFSET_TOKEN_NAME;
                 if (index > 0) {
                     Character ch = (Character) tokens.get(index);
                     if (ch == '-') {
@@ -318,11 +306,11 @@ public class AuthorListParser {
         }
 
         // Third step: do actual splitting, construct Author object
-        String firstPart = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, offsettoken, false);
-        String firstAbbr = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, offsettokenabbr, true);
-        String vonPart = vonPartStart < 0 ? null : concatTokens(tokens, vonPartStart, vonPartEnd, offsettoken, false);
-        String lastPart = lastPartStart < 0 ? null : concatTokens(tokens, lastPartStart, lastPartEnd, offsettoken, false);
-        String jrPart = jrPartStart < 0 ? null : concatTokens(tokens, jrPartStart, jrPartEnd, offsettoken, false);
+        String firstPart = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN, false);
+        String firstAbbr = firstPartStart < 0 ? null : concatTokens(tokens, firstPartStart, firstPartEnd, OFFSET_TOKEN_ABBR, true);
+        String vonPart = vonPartStart < 0 ? null : concatTokens(tokens, vonPartStart, vonPartEnd, OFFSET_TOKEN, false);
+        String lastPart = lastPartStart < 0 ? null : concatTokens(tokens, lastPartStart, lastPartEnd, OFFSET_TOKEN, false);
+        String jrPart = jrPartStart < 0 ? null : concatTokens(tokens, jrPartStart, jrPartEnd, OFFSET_TOKEN, false);
 
         if ((firstPart != null) && (lastPart != null) && lastPart.equals(lastPart.toUpperCase(Locale.ROOT)) && (lastPart.length() < 5)
                 && (Character.UnicodeScript.of(lastPart.charAt(0)) != Character.UnicodeScript.HAN)) {
@@ -357,7 +345,7 @@ public class AuthorListParser {
         }
         int updatedStart = start + TOKEN_GROUP_LENGTH;
         while (updatedStart < end) {
-            result.append(tokens.get((updatedStart - TOKEN_GROUP_LENGTH) + offsettikenname));
+            result.append(tokens.get((updatedStart - TOKEN_GROUP_LENGTH) + OFFSET_TOKEN_NAME));
             result.append((String) tokens.get(updatedStart + offset));
             if (dotAfter) {
                 result.append('.');
@@ -424,14 +412,11 @@ public class AuthorListParser {
             if (c == '{') {
                 bracesLevel++;
             }
-
             if (firstLetterIsFound && (tokenAbbrEnd < 0) && ((bracesLevel == 0) || (c == '{'))) {
                 tokenAbbrEnd = tokenEnd;
             }
-            if ((c == '}')) {
-                if( (bracesLevel > 0)) {
-                    bracesLevel--;
-                }
+            if (c == '}' && bracesLevel > 0) {
+                bracesLevel--;
             }
             if (!firstLetterIsFound && (currentBackslash < 0) && Character.isLetter(c)) {
                 if (bracesLevel == 0) {

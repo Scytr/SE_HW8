@@ -1,4 +1,4 @@
-package task1;
+package tasks.task1;
 
 public enum Month {
     JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE,
