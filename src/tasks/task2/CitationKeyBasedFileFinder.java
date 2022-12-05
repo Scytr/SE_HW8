@@ -17,6 +17,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 public class CitationKeyBasedFileFinder {
     private final boolean exactKeyOnly;
 
@@ -32,7 +33,9 @@ public class CitationKeyBasedFileFinder {
         if (StringUtil.isBlank(citeKeyOptional)) {
             return Collections.emptyList();
         }
-        String citeKey = citeKeyOptional.get();
+        String citeKey = null;
+        if(citeKeyOptional.isPresent())
+            citeKey = citeKeyOptional.get();
 
         List<Path> result = new ArrayList<>();
 
@@ -55,9 +58,7 @@ public class CitationKeyBasedFileFinder {
             }
         }
 
-        List<Path> res=result.stream().sorted().collect(Collectors.toList());
-
-        return res;
+        return result.stream().sorted().collect(Collectors.toList());
     }
 
     private boolean matches(String filename, String citeKey) {
@@ -87,7 +88,9 @@ public class CitationKeyBasedFileFinder {
             if (Files.exists(directory)) {
                 try (Stream<Path> pathStream = Files.find(directory, Integer.MAX_VALUE, isFileWithCorrectExtension, FileVisitOption.FOLLOW_LINKS)) {
                     result.addAll(pathStream.collect(Collectors.toSet()));
-                } catch (UncheckedIOException e) {}
+                } catch (UncheckedIOException e) {
+                    // do something
+                }
             }
         }
 

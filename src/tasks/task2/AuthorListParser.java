@@ -12,16 +12,17 @@ import java.util.Set;
 
 
 public class AuthorListParser {
+
     // Avoid partition where these values are contained
     private final static Set<String> AVOID_TERMS_IN_LOWER_CASE = Set.of(
             "jr", "sr", "jnr", "snr", "von", "zu", "van", "der");
 
     private static final int TOKEN_GROUP_LENGTH = 4; // number of entries for a token
+
     // the following are offsets of an entry in a group of entries for one token
     private static final int OFFSET_TOKEN = 0; // String -- token itself;
     private static final int OFFSET_TOKEN_ABBR = 1; // String -- token abbreviation;
     private static final int OFFSET_TOKEN_NAME = 2;
-    private static final int OFFSET_TOKEN_SET = 3;
 
     // Character -- token terminator (either " " or
     // "-") comma)
@@ -55,11 +56,11 @@ public class AuthorListParser {
     private boolean tokenCase;
 
     /**
-     * Builds a new array of strings with stringbuilder. Regarding to the name affixes.
+     * Builds a new array of strings with StringBuilder. Regarding the name affixes.
      *
-     * @return New string with correct seperation
+     * @return New string with correct separation
      */
-    private static StringBuilder buildwithaffix(Collection<Integer> indexArray, List<String> nameList) {
+    private static StringBuilder buildWithAffix(Collection<Integer> indexArray, List<String> nameList) {
         StringBuilder stringBuilder = new StringBuilder();
         // avoidedTimes needs to be increased by the count of avoided terms for correct odd/even calculation
         int avoidedTimes = 0;
@@ -132,7 +133,7 @@ public class AuthorListParser {
 
                 if ((valuePartsCount % 2) == 0) {
                     // We hit the described special case with name affix like Jr
-                    listOfNames = buildwithaffix(avoidIndex, arrayNameList).toString();
+                    listOfNames = buildWithAffix(avoidIndex, arrayNameList).toString();
                 }
             }
         }
@@ -167,8 +168,7 @@ public class AuthorListParser {
         while (continueLoop) {
             Token token = getToken();
             switch (token) {
-                case EOF:
-                case AND:
+                case EOF, AND:
                     continueLoop = false;
                     break;
                 case COMMA:
@@ -177,7 +177,7 @@ public class AuthorListParser {
                     } else if (commaSecond < 0) {
                         commaSecond = tokens.size();
                     }
-
+                    break;
                 case WORD:
                     tokens.add(original.substring(ts, tokenEnd));
                     tokens.add(original.substring(ts, tokenAbbrEnd));
@@ -211,7 +211,8 @@ public class AuthorListParser {
                         break;
                     }
                     break;
-
+                default:
+                    // Do something
             }
         }
 
@@ -412,10 +413,11 @@ public class AuthorListParser {
             if (c == '{') {
                 bracesLevel++;
             }
+
             if (firstLetterIsFound && (tokenAbbrEnd < 0) && ((bracesLevel == 0) || (c == '{'))) {
                 tokenAbbrEnd = tokenEnd;
             }
-            if (c == '}' && bracesLevel > 0) {
+            if ((c == '}') && (bracesLevel > 0)) {
                 bracesLevel--;
             }
             if (!firstLetterIsFound && (currentBackslash < 0) && Character.isLetter(c)) {
@@ -423,7 +425,7 @@ public class AuthorListParser {
                     tokenCase = Character.isUpperCase(c) || (Character.UnicodeScript.of(c) == Character.UnicodeScript.HAN);
                 } else {
                     // If this is a particle in braces, always treat it as if it starts with
-                    // an upper case letter. Otherwise a name such as "{van den Bergen}, Hans"
+                    // an upper case letter. Otherwise, a name such as "{van den Bergen}, Hans"
                     // will not yield a proper last name:
                     tokenCase = true;
                 }
